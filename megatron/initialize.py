@@ -208,13 +208,14 @@ def _initialize_distributed():
                 args.local_rank = device
             torch.cuda.set_device(device)
         # Call the init process
-        init_method = 'tcp://'
-        master_ip = os.getenv('MASTER_ADDR', 'localhost')
-        master_port = os.getenv('MASTER_PORT', '6000')
-        init_method += master_ip + ':' + master_port
+        # init_method = 'tcp://'
+        # master_ip = os.getenv('MASTER_ADDR', 'localhost')
+        # master_port = os.getenv('MASTER_PORT', '6000')
+        # init_method += master_ip + ':' + master_port
+        init_method = 'env://'
         torch.distributed.init_process_group(
             backend=args.distributed_backend,
-            world_size=args.world_size, rank=args.rank,
+            # world_size=args.world_size, rank=args.rank,
             init_method=init_method)
 
     # Set the tensor model-parallel, pipeline model-parallel, and

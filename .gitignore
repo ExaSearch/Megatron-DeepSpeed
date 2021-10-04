@@ -1,4 +1,11 @@
 __pycache__
+*.npy
+*.txt
+*.json
+*.bin
+*.idx
+tmp/
+*.so
 
 # Distribution / packaging
 build/
