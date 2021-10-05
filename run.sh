@@ -11,40 +11,32 @@ mkdir -p $DIR/logs
 #DATASET_3="<PATH TO THE THIRD DATASET>"
 #DATASET="0.2 ${DATASET_1} 0.3 ${DATASET_2} 0.5 ${DATASET_3}"
 
-BASE_DATA_PATH=/data/Megatron-LM/data
-DATASET=${BASE_DATA_PATH}/indexed_datasets/megatron
-VOCAB_PATH=${BASE_DATA_PATH}/gpt2-vocab.json
-MERGE_PATH=${BASE_DATA_PATH}/gpt2-merges.txt
+# BASE_DATA_PATH=/data/Megatron-LM/data
+# DATASET=${BASE_DATA_PATH}/indexed_datasets/megatron
+# VOCAB_PATH=${BASE_DATA_PATH}/gpt2-vocab.json
+# MERGE_PATH=${BASE_DATA_PATH}/gpt2-merges.txt
 
+VOCAB_PATH=gpt2-vocab.json
+MERGE_PATH=gpt2-merges.txt
+DATASET=ccnews_text_document
 
 script_path=$(realpath $0)
 script_dir=$(dirname $script_path)
 CONFIG_JSON="$script_dir/ds_config.json"
 
 USE_DEEPSPEED=1
-ZERO_STAGE=0
+ZERO_STAGE=1
 
-
-# Debug
-#TP=4
-#PP=4
-#LAYERS=8
-#HIDDEN=512
-#SEQ=1024
-#GLOBAL_BATCH=128
-#WORKER_STR="-i worker-0"
-
-
-# 52B
-TP=4
-PP=16
-HIDDEN=8192
-LAYERS=64
+TP=8
+PP=1
+HIDDEN=6144
+LAYERS=24
 SEQ=1024
-GLOBAL_BATCH=1024
-WORKER_STR=""
-
+GLOBAL_BATCH=64
 MICRO_BATCH=4
+ATTENTION_HEADS=16
+
+WORKER_STR=""
 
 while [[ $# -gt 0 ]]
 do
@@ -73,7 +65,7 @@ options=" \
 	--pipeline-model-parallel-size $PP \
         --num-layers $LAYERS \
         --hidden-size $HIDDEN \
-        --num-attention-heads 32 \
+        --num-attention-heads $ATTENTION_HEADS \
         --seq-length $SEQ \
         --loss-scale 12 \
         --max-position-embeddings $SEQ \
@@ -119,7 +111,12 @@ cat <<EOT > $CONFIG_JSON
   "steps_per_print": 1,
 
   "zero_optimization": {
-    "stage": $ZERO_STAGE
+    "stage":2,
+    "contiguous_gradients": true,
+    "overlap_comm": true,
+    "reduce_scatter": false,
+    "reduce_bucket_size": 5e8,
+    "allgather_bucket_size": 5e8
   },
 
   "gradient_clipping": 1.0,

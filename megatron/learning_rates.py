@@ -91,7 +91,7 @@ class AnnealingLR(object):
         return self.min_lr + coeff * delta_lr
 
 
-    def step(self, increment):
+    def step(self, increment=1):
         """Set lr for all parameters groups."""
         self.num_steps += increment
         new_lr = self.get_lr()

@@ -14,12 +14,12 @@ VOCAB_FILE=gpt2-vocab.json
 MERGE_FILE=gpt2-merges.txt
 DATA_PATH=ccnews_text_document
 
-GPT_ARGS="--num-layers 24 \
-          --hidden-size 3072 \
+GPT_ARGS="--num-layers 28 \
+          --hidden-size 4096 \
           --num-attention-heads 16 \
           --seq-length 1024 \
           --max-position-embeddings 1024 \
-          --micro-batch-size 1 \
+          --micro-batch-size 4 \
           --global-batch-size 64 \
           --lr 0.00015 \
           --train-iters 500000 \
