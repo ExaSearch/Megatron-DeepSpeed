@@ -27,9 +27,9 @@ CONFIG_JSON="$script_dir/ds_config.json"
 USE_DEEPSPEED=1
 ZERO_STAGE=1
 
-TP=8
-PP=1
-HIDDEN=6144
+TP=1
+PP=8
+HIDDEN=3072
 LAYERS=24
 SEQ=1024
 GLOBAL_BATCH=64
@@ -111,16 +111,11 @@ cat <<EOT > $CONFIG_JSON
   "steps_per_print": 1,
 
   "zero_optimization": {
-    "stage":2,
-    "contiguous_gradients": true,
-    "overlap_comm": true,
-    "reduce_scatter": false,
-    "reduce_bucket_size": 5e8,
-    "allgather_bucket_size": 5e8
+    "stage": $ZERO_STAGE
   },
 
   "gradient_clipping": 1.0,
-  "prescale_gradients": true,
+  "prescale_gradients": false,
 
   "fp16": {
     "enabled": true,
