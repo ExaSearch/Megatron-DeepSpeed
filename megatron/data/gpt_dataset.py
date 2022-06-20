@@ -184,7 +184,9 @@ class GPTDataset(torch.utils.data.Dataset):
                 length=offset_l + 1))
             sample = np.concatenate(sample_list)
 
-        return {'text': np.array(sample, dtype=np.int64)}
+        text = np.array(sample, dtype=np.int64)
+        print(text.shape)
+        return {'text': text}
 
 
 def _build_index_mappings(name, data_prefix, documents, sizes,

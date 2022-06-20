@@ -11,7 +11,7 @@ mkdir -p $DIR/logs
 #DATASET_3="<PATH TO THE THIRD DATASET>"
 #DATASET="0.2 ${DATASET_1} 0.3 ${DATASET_2} 0.5 ${DATASET_3}"
 
-BASE_DATA_PATH=/data/Megatron-LM/data
+BASE_DATA_PATH=.
 DATASET=${BASE_DATA_PATH}/indexed_datasets/megatron
 VOCAB_PATH=${BASE_DATA_PATH}/gpt2-vocab.json
 MERGE_PATH=${BASE_DATA_PATH}/gpt2-merges.txt
@@ -22,26 +22,44 @@ script_dir=$(dirname $script_path)
 CONFIG_JSON="$script_dir/ds_config.json"
 
 USE_DEEPSPEED=1
-ZERO_STAGE=0
+ZERO_STAGE=1
 
 
 # Debug
-#TP=4
-#PP=4
-#LAYERS=8
-#HIDDEN=512
-#SEQ=1024
-#GLOBAL_BATCH=128
+# TP=4
+# PP=4
+# LAYERS=8
+# HIDDEN=512
+# SEQ=1024
+# GLOBAL_BATCH=128
 #WORKER_STR="-i worker-0"
 
+# GPTNeoX-20B
+TP=4
+PP=2
+LAYERS=44
+HIDDEN=5568 # 64 * 87
+HEADS=64
+SEQ=2048
+GLOBAL_BATCH=128
+#WORKER_STR="-i worker-0"
+
+# OPT-30B
+# TP=4
+# PP=4
+# LAYERS=8
+# HIDDEN=512
+# SEQ=1024
+# GLOBAL_BATCH=128
+#WORKER_STR="-i worker-0"
 
 # 52B
-TP=4
-PP=16
-HIDDEN=8192
-LAYERS=64
-SEQ=1024
-GLOBAL_BATCH=1024
+# TP=4
+# PP=16
+# HIDDEN=8192
+# LAYERS=64
+# SEQ=1024
+# GLOBAL_BATCH=1024
 WORKER_STR=""
 
 MICRO_BATCH=4
@@ -73,7 +91,7 @@ options=" \
 	--pipeline-model-parallel-size $PP \
         --num-layers $LAYERS \
         --hidden-size $HIDDEN \
-        --num-attention-heads 32 \
+        --num-attention-heads $HEADS \
         --seq-length $SEQ \
         --loss-scale 12 \
         --max-position-embeddings $SEQ \
@@ -123,7 +141,7 @@ cat <<EOT > $CONFIG_JSON
   },
 
   "gradient_clipping": 1.0,
-  "prescale_gradients": true,
+  "prescale_gradients": false,
 
   "fp16": {
     "enabled": true,
@@ -140,7 +158,7 @@ EOT
 
 #run_cmd="deepspeed -i worker-0:0,1,2,3 ${DIR}/pretrain_gpt.py $@ ${options}"
 #run_cmd="deepspeed -i worker-0 ${DIR}/pretrain_gpt.py $@ ${options}"
-run_cmd="deepspeed $WORKER_STR ${DIR}/pretrain_gpt.py $@ ${options}"
+run_cmd="deepspeed $WORKER_STR ${DIR}/benchmark_gpt.py $@ ${options}"
 
 
 echo ${run_cmd}
